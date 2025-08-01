@@ -1,0 +1,336 @@
+import java.io.*;
+import java.net.*;
+
+public class Servidor1 {
+    public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(1234)) {
+            System.out.println("Servidor corriendo. Esperando Conexion");
+
+            Socket socket = serverSocket.accept();
+            System.out.println("Cliente conectado");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            while (true) {
+                System.out.println("Enviando menu al cliente...");
+                out.println("=== MENÚ DE OPERACIONES ===\n" +
+                            "1. Suma de numeros\n" +
+                            "2. Seno de un numero\n" +
+                            "3. Coseno de un número\n" +
+                            "4. Raíz cuadrada de un numero\n" +
+                            "5. Elevar una base a una potencia\n" +
+                            "6. Salir\n"); 
+
+                System.out.println("Esperando que el cliente elija una opcion...");
+                int opcion = Integer.parseInt(in.readLine());
+                System.out.println("El cliente eligiO la opcion: " + opcion);
+
+                if (opcion == 6) {
+                    System.out.println("El cliente ha salido. Terminando conexion...");
+                    break;
+                }
+
+                switch (opcion) {
+                    case 1:
+                        System.out.println("Operacion: SUMA");
+                        int cantidad = Integer.parseInt(in.readLine());
+                        double suma = 0;
+                        for (int i = 0; i < cantidad; i++) {
+                            double num = Double.parseDouble(in.readLine());
+                            System.out.println("Numero recibido: " + num);
+                            suma += num;
+                        }
+                        out.println("Resultado de la suma: " + suma);
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    case 2:
+                        System.out.println("Operacion: SENO");
+                        double seno = Double.parseDouble(in.readLine());
+                        System.out.println("Numero recibido: " + seno);
+                        out.println("Seno: " + Math.sin(Math.toRadians(seno)));
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    case 3:
+                        System.out.println("Operacion: COSENO");
+                        double coseno = Double.parseDouble(in.readLine());
+                        System.out.println("Numero recibido: " + coseno);
+                        out.println("Coseno: " + Math.cos(Math.toRadians(coseno)));
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    case 4:
+                        System.out.println("Operacion: RAIZ CUADRADA");
+                        double numRaiz = Double.parseDouble(in.readLine());
+                        System.out.println("Numero recibido: " + numRaiz);
+                        if (numRaiz < 0) {
+                            out.println("Error: no se puede calcular raiz de numero negativo.");
+                        } else {
+                            out.println("Raiz cuadrada: " + Math.sqrt(numRaiz));
+                        }
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    case 5:
+                        System.out.println("Operacion: POTENCIA");
+                        double base = Double.parseDouble(in.readLine());
+                        double exponente = Double.parseDouble(in.readLine());
+                        System.out.println("Base: " + base + ", Exponente: " + exponente);
+                        out.println("Resultado: " + Math.pow(base, exponente));
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    default:
+                        out.println("Opcion no valida.");
+                        System.out.println("Opcion no valida recibida.");
+                }
+            }
+
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class Cliente1 {
+    public static void main(String[] args) {
+        try (Socket socket = new Socket("localhost", 1234)) {
+            System.out.println("Cliente corriendo");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            Scanner sc = new Scanner(System.in);
+
+            while (true) {
+                
+                StringBuilder menuBuilder = new StringBuilder();
+                String linea;
+                while ((linea = in.readLine()) != null && !linea.isEmpty()) {
+                    menuBuilder.append(linea).append("\n");
+                }
+                System.out.println(menuBuilder.toString());
+
+                
+                System.out.print("Seleccione una opcion: ");
+                int opcion = sc.nextInt();
+                out.println(opcion);
+
+                if (opcion == 6) {
+                    System.out.println("Saliendo del programa.");
+                    break;
+                }
+
+                switch (opcion) {
+                    case 1:
+                        System.out.print("¿Cuantos numeros desea sumar?: ");
+                        int cantidad = sc.nextInt();
+                        out.println(cantidad);
+                        for (int i = 0; i < cantidad; i++) {
+                            System.out.print("Numero " + (i + 1) + ": ");
+                            out.println(sc.nextDouble());
+                        }
+                        break;
+                    case 2:
+                        System.out.print("Ingrese el numero para calcular el seno: ");
+                        out.println(sc.nextDouble());
+                        break;
+                    case 3:
+                        System.out.print("Ingrese el numero para calcular el coseno: ");
+                        out.println(sc.nextDouble());
+                        break;
+                    case 4:
+                        System.out.print("Ingrese un numero positivo para raiz cuadrada: ");
+                        out.println(sc.nextDouble());
+                        break;
+                    case 5:
+                        System.out.print("Ingrese la base: ");
+                        out.println(sc.nextDouble());
+                        System.out.print("Ingrese el exponente: ");
+                        out.println(sc.nextDouble());
+                        break;
+                    default:
+                        System.out.println("Opcion no valida.");
+                }
+
+                
+                String respuesta = in.readLine();
+                System.out.println(" " + respuesta);
+                System.out.println();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class Cliente1 {
+    public static void main(String[] args) {
+        try (Socket socket = new Socket("localhost", 1234)) {
+            System.out.println("Cliente corriendo");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            Scanner sc = new Scanner(System.in);
+
+            while (true) {
+                
+                StringBuilder menuBuilder = new StringBuilder();
+                String linea;
+                while ((linea = in.readLine()) != null && !linea.isEmpty()) {
+                    menuBuilder.append(linea).append("\n");
+                }
+                System.out.println(menuBuilder.toString());
+
+                
+                System.out.print("Seleccione una opcion: ");
+                int opcion = sc.nextInt();
+                out.println(opcion);
+
+                if (opcion == 6) {
+                    System.out.println("Saliendo del programa.");
+                    break;
+                }
+
+                switch (opcion) {
+                    case 1:
+                        System.out.print("¿Cuantos numeros desea sumar?: ");
+                        int cantidad = sc.nextInt();
+                        out.println(cantidad);
+                        for (int i = 0; i < cantidad; i++) {
+                            System.out.print("Numero " + (i + 1) + ": ");
+                            out.println(sc.nextDouble());
+                        }
+                        break;
+                    case 2:
+                        System.out.print("Ingrese el numero para calcular el seno: ");
+                        out.println(sc.nextDouble());
+                        break;
+                    case 3:
+                        System.out.print("Ingrese el numero para calcular el coseno: ");
+                        out.println(sc.nextDouble());
+                        break;
+                    case 4:
+                        System.out.print("Ingrese un numero positivo para raiz cuadrada: ");
+                        out.println(sc.nextDouble());
+                        break;
+                    case 5:
+                        System.out.print("Ingrese la base: ");
+                        out.println(sc.nextDouble());
+                        System.out.print("Ingrese el exponente: ");
+                        out.println(sc.nextDouble());
+                        break;
+                    default:
+                        System.out.println("Opcion no valida.");
+                }
+
+                
+                String respuesta = in.readLine();
+                System.out.println(" " + respuesta);
+                System.out.println();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+import java.io.*;
+import java.net.*;
+
+public class Servidor1 {
+    public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(1234)) {
+            System.out.println("Servidor corriendo. Esperando Conexion");
+
+            Socket socket = serverSocket.accept();
+            System.out.println("Cliente conectado");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            while (true) {
+                System.out.println("Enviando menu al cliente...");
+                out.println("=== MENÚ DE OPERACIONES ===\n" +
+                            "1. Suma de numeros\n" +
+                            "2. Seno de un numero\n" +
+                            "3. Coseno de un número\n" +
+                            "4. Raíz cuadrada de un numero\n" +
+                            "5. Elevar una base a una potencia\n" +
+                            "6. Salir\n"); 
+
+                System.out.println("Esperando que el cliente elija una opcion...");
+                int opcion = Integer.parseInt(in.readLine());
+                System.out.println("El cliente eligiO la opcion: " + opcion);
+
+                if (opcion == 6) {
+                    System.out.println("El cliente ha salido. Terminando conexion...");
+                    break;
+                }
+
+                switch (opcion) {
+                    case 1:
+                        System.out.println("Operacion: SUMA");
+                        int cantidad = Integer.parseInt(in.readLine());
+                        double suma = 0;
+                        for (int i = 0; i < cantidad; i++) {
+                            double num = Double.parseDouble(in.readLine());
+                            System.out.println("Numero recibido: " + num);
+                            suma += num;
+                        }
+                        out.println("Resultado de la suma: " + suma);
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    case 2:
+                        System.out.println("Operacion: SENO");
+                        double seno = Double.parseDouble(in.readLine());
+                        System.out.println("Numero recibido: " + seno);
+                        out.println("Seno: " + Math.sin(Math.toRadians(seno)));
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    case 3:
+                        System.out.println("Operacion: COSENO");
+                        double coseno = Double.parseDouble(in.readLine());
+                        System.out.println("Numero recibido: " + coseno);
+                        out.println("Coseno: " + Math.cos(Math.toRadians(coseno)));
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    case 4:
+                        System.out.println("Operacion: RAIZ CUADRADA");
+                        double numRaiz = Double.parseDouble(in.readLine());
+                        System.out.println("Numero recibido: " + numRaiz);
+                        if (numRaiz < 0) {
+                            out.println("Error: no se puede calcular raiz de numero negativo.");
+                        } else {
+                            out.println("Raiz cuadrada: " + Math.sqrt(numRaiz));
+                        }
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    case 5:
+                        System.out.println("Operacion: POTENCIA");
+                        double base = Double.parseDouble(in.readLine());
+                        double exponente = Double.parseDouble(in.readLine());
+                        System.out.println("Base: " + base + ", Exponente: " + exponente);
+                        out.println("Resultado: " + Math.pow(base, exponente));
+                        System.out.println("Respuesta enviada al cliente.");
+                        break;
+                    default:
+                        out.println("Opcion no valida.");
+                        System.out.println("Opcion no valida recibida.");
+                }
+            }
+
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
